@@ -1,0 +1,44 @@
+# Build output
+.build/
+build/
+*.o
+*.dSYM/
+DerivedData/
+
+# The generated iconset; Usher.icns is committed, the intermediate is not
+*.iconset/
+
+# macOS
+.DS_Store
+._*
+
+# Editor
+.vscode/
+.idea/
+*.swp
+
+# Never commit runtime configuration — it holds real paths and real routing
+# rules. Usher's config lives in ~/Library/Application Support/Usher/ and is
+# seeded from the defaults in source on first run.
+settings.json
+rules.json
+routes.json
+journal.ndjson
+*.broken-*.json
+renames.ndjson
+*.ndjson
+*.cleared
+
+# Keys and credentials never belong in the repository — notarization reads a
+# stored keychain profile, not a key file.
+*.p8
+*.p12
+*.pem
+*.key
+*.mobileprovision
+AuthKey_*
+.env
+.env.*
+
+# Release artefacts are uploaded, not committed
+build/release/
