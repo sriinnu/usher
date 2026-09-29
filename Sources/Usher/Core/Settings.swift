@@ -74,6 +74,9 @@ struct AppSettings: Codable {
     /// Where `{root}` in routes.json and rules.json points unless a watched
     /// folder says otherwise. iCloud Drive: what every destination was before.
     var defaultDestinationRoot: String = "~/Library/Mobile Documents/com~apple~CloudDocs"
+    /// Files and folders Usher never looks at, by name: shell globs, case
+    /// insensitive (`*.dmg`, `IMG_*`, `AuthKey_*`). Not read, not journaled.
+    var ignorePatterns: [String] = []
 
     enum CodingKeys: String, CodingKey {
         case watchFolders, dryRun, autoMoveThreshold, askThreshold, model
@@ -82,6 +85,7 @@ struct AppSettings: Codable {
         case sensitiveContentPatterns, personalIdentifiers
         case duplicatesFolder, downloadCloudFiles, maxCloudDownloadMB
         case keepPanelOpen, autoSweep, autoSweepMinutes, defaultDestinationRoot
+        case ignorePatterns
     }
 
     static let defaultSensitiveExtensions: [String] = [
@@ -207,6 +211,7 @@ extension AppSettings {
         autoSweep = value(.autoSweep, fallback.autoSweep)
         autoSweepMinutes = value(.autoSweepMinutes, fallback.autoSweepMinutes)
         defaultDestinationRoot = value(.defaultDestinationRoot, fallback.defaultDestinationRoot)
+        ignorePatterns = value(.ignorePatterns, fallback.ignorePatterns)
     }
 }
 

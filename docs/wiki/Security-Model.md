@@ -28,6 +28,7 @@ Every step that can decide locally runs before the step that cannot.
 
 | # | Step | Reads the file? | Can send? | If it matches |
 | --- | --- | --- | --- | --- |
+| 0 | Your ignore list (name globs) | no | no | skipped — not read, not journaled |
 | 1 | Settle; skip symbolic links | no | no | wait / skip |
 | 2 | **Secret floor, by name/format** | no | no | never classified — not read, not moved |
 | 3 | Extract evidence | yes, locally | no | — |

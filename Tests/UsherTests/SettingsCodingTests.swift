@@ -287,3 +287,26 @@ final class HeldByModelTests: XCTestCase {
         XCTAssertFalse(j.needsDecision("/x/statement.pdf", fingerprint: "fp-A"), "not again, not tomorrow, not in a week")
     }
 }
+
+final class ExclusionTests: XCTestCase {
+    /// Ignored means never looked at: not read, not logged, no row. Globs on
+    /// the name, case does not matter, folders too.
+    func testGlobsMatchNamesCaseInsensitively() {
+        var s = AppSettings.default
+        s.ignorePatterns = ["*.dmg", "IMG_*", "AuthKey_*", "Screenshot *", " "]
+        let ignored = ["Cline_0.0.34.dmg", "installer.DMG", "IMG_1783.JPG", "img_0001.heic",
+                       Fake.appleKeyFile, "Screenshot 2026-09-23 at 13.35.16.png"]
+        for n in ignored { XCTAssertTrue(Exclusions.isIgnored(URL(fileURLWithPath: "/x/\(n)"), settings: s), n) }
+        for n in ["report.pdf", "myIMG_1.jpg", "dmg-notes.txt", "Screenshots"] {
+            XCTAssertFalse(Exclusions.isIgnored(URL(fileURLWithPath: "/x/\(n)"), settings: s), n)
+        }
+        XCTAssertFalse(Exclusions.isIgnored(URL(fileURLWithPath: "/x/a.pdf"), settings: .default), "empty list ignores nothing")
+    }
+
+    /// An older settings.json has no ignorePatterns key; it must still load.
+    func testSettingsWithoutIgnorePatternsStillDecode() throws {
+        let json = #"{"watchFolders":[],"dryRun":true}"#
+        let s = try JSONDecoder().decode(AppSettings.self, from: Data(json.utf8))
+        XCTAssertEqual(s.ignorePatterns, [])
+    }
+}

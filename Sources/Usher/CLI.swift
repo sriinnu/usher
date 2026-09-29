@@ -68,6 +68,7 @@ enum CLI {
                 continue
             }
             if StabilityGate.shouldIgnore(url) || StabilityGate.isPartial(url) { continue }
+            if Exclusions.isIgnored(url, settings: settings) { continue }
 
             if SecretFormats.isSecret(url, settings: settings) {
                 print(" 🔑 \(url.lastPathComponent)")
@@ -237,7 +238,8 @@ enum CLI {
 
         let watcher = FolderWatcher { urls in
             for url in urls {
-                guard !StabilityGate.shouldIgnore(url), !StabilityGate.isPartial(url) else { continue }
+                guard !StabilityGate.shouldIgnore(url), !StabilityGate.isPartial(url),
+                      !Exclusions.isIgnored(url, settings: settings) else { continue }
                 Task {
                     guard await seen.claim(url.path) else { return }
                     defer { Task { await seen.release(url.path) } }

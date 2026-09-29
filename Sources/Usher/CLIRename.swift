@@ -60,6 +60,7 @@ enum CLIRename {
         for file in files.sorted(by: { $0.path < $1.path }) {
             // Never touch a vault, not even its name.
             if SecretFormats.isSecret(file, settings: settings) { skipped += 1; continue }
+            if Exclusions.isIgnored(file, settings: settings) { skipped += 1; continue }
             // stripped, not candidates: bulk rename never reorders a name.
             guard let cleaned = BookName.stripped(for: file.lastPathComponent),
                   cleaned != file.lastPathComponent else {

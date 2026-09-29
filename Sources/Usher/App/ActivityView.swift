@@ -45,7 +45,7 @@ struct ActivityView: View {
 
             if showLegend {
                 LegendStrip()
-            } else if journal.entries.isEmpty || !pipeline.hasAPIKey && journal.visible.isEmpty {
+            } else if journal.entries.isEmpty || (!pipeline.hasAPIKey || activeFolderCount == 0) && journal.visible.isEmpty {
                 emptyState
             } else {
                 if journal.pendingCount > 0 {
@@ -342,21 +342,30 @@ struct ActivityView: View {
 
     @ViewBuilder
     private var emptyState: some View {
-        if !pipeline.hasAPIKey {
-            // First launch. Say what to do, in order, before anything fails.
+        if !pipeline.hasAPIKey || activeFolderCount == 0 {
+            // First launch: a checklist that ticks itself, so a new user sees
+            // where they are instead of reading prose.
             VStack(alignment: .leading, spacing: 10) {
-                Label("Add your TypeSafe API key to start", systemImage: "key.fill")
+                Text("Getting started")
                     .font(.system(size: 12, weight: .semibold))
-                Text("Usher asks a small classification model where each file belongs. Until there is a key it files only what your local rules cover, and sends nothing.")
-                    .font(.system(size: 10.5))
-                    .foregroundStyle(.secondary)
-                    .fixedSize(horizontal: false, vertical: true)
-                Text("macOS will then ask to let Usher read your Downloads folder and use its keys in the keychain. Allow both.")
-                    .font(.system(size: 10.5))
-                    .foregroundStyle(.secondary)
-                    .fixedSize(horizontal: false, vertical: true)
-                RowButton(title: "Open Settings → Privacy", symbol: "gearshape", tint: .blue, prominent: true) {
-                    openPrivacySettings()
+                checklistRow(done: pipeline.hasAPIKey,
+                             "API key", pipeline.hasAPIKey ? "Set." : "Usher asks a small classification model where each file belongs. Until there is a key it sends nothing.")
+                checklistRow(done: activeFolderCount > 0,
+                             "Folders", activeFolderCount > 0
+                                ? "Watching \(activeFolderCount)."
+                                : "Add Downloads or Desktop in Settings → Folders. macOS asks once for access — allow it.")
+                checklistRow(done: !settingsStore.settings.dryRun,
+                             "Dry run", settingsStore.settings.dryRun
+                                ? "On. Files are decided and logged, never moved. Turn it off with the pill above when the previews look right."
+                                : "Off. Files move.")
+                HStack(spacing: 6) {
+                    if !pipeline.hasAPIKey {
+                        RowButton(title: "Open Settings → Privacy", symbol: "key", tint: .blue, prominent: true) { openPrivacySettings() }
+                    } else {
+                        RowButton(title: "Open Settings → Folders", symbol: "folder", tint: .blue, prominent: true) {
+                            settingsTab = "folders"; NSApp.activate(ignoringOtherApps: true); openSettings()
+                        }
+                    }
                 }
             }
             .padding(16)
@@ -380,6 +389,22 @@ struct ActivityView: View {
             .frame(maxWidth: .infinity)
             .padding(.vertical, 34)
         }
+    }
+
+    private func checklistRow(done: Bool, _ title: String, _ detail: String) -> some View {
+        HStack(alignment: .top, spacing: 8) {
+            Image(systemName: done ? "checkmark.circle.fill" : "circle")
+                .font(.system(size: 12))
+                .foregroundStyle(done ? Color.green : Color.secondary)
+                .padding(.top, 1)
+            VStack(alignment: .leading, spacing: 2) {
+                Text(title).font(.system(size: 11.5, weight: .medium))
+                Text(detail).font(.system(size: 10.5)).foregroundStyle(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+        }
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("\(title): \(done ? "done" : "to do"). \(detail)")
     }
 
     /// What an empty list means depends on which list it is.

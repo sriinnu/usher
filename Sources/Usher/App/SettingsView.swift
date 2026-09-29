@@ -277,6 +277,16 @@ struct FoldersTab: View {
                     }
                 }
 
+                Section(title: "Ignore",
+                        subtitle: "Files and folders Usher never looks at — not read, not logged, no row in the panel. One pattern per line; * and ? work, case does not matter.") {
+                    PatternEditor(caption: "Names like  *.dmg   IMG_*   AuthKey_*   Screenshot *",
+                                  symbol: "eye.slash", height: 70,
+                                  lines: Binding(
+                                      get: { settingsStore.settings.ignorePatterns },
+                                      set: { settingsStore.settings.ignorePatterns = $0 }
+                                  ))
+                }
+
                 HStack(alignment: .top, spacing: 6) {
                     Image(systemName: "info.circle")
                         .font(.system(size: 10))

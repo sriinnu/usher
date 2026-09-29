@@ -135,7 +135,7 @@ length are not the same file.
 
 | File | What it is |
 | --- | --- |
-| `settings.json` | Watched folders, thresholds, dry-run flag, privacy patterns |
+| `settings.json` | Watched folders, ignore list, thresholds, dry-run flag, privacy patterns |
 | `routes.json` | The destination tree |
 | `rules.json` | Deterministic routes that bypass the model entirely |
 | `journal.ndjson` | Every decision, append-only — **encrypted**, one sealed line each |
@@ -148,6 +148,14 @@ The two logs are sealed with AES-GCM under a key kept only in the login keychain
 (`Usher journal key`). If the key cannot be read, Usher does not start. Read them
 with `Usher log journal` / `Usher log renames`. Losing the keychain item loses the
 journal — see [Encrypted logs](docs/wiki/Encrypted-Logs.md).
+
+## Ignored
+
+Settings → Folders → Ignore takes shell globs — `*.dmg`, `IMG_*`, `AuthKey_*`,
+`Screenshot *` — matched against file and folder names, case insensitive. A
+match is never looked at: not read, not journaled, no row in the panel. That is
+the difference from a privacy pattern, which holds a file and shows you that it
+did. Use it for the things you know you want left exactly where they land.
 
 ## Never classified
 

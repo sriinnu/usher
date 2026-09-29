@@ -46,7 +46,7 @@ enum Legend {
         Item(symbol: "questionmark.circle", tint: .secondary, name: "Guide",
              meaning: "This list. Click it again to go back to the files."),
         Item(symbol: "gearshape", tint: .secondary, name: "Settings",
-             meaning: "Watched folders, thresholds, privacy lists and the API key."),
+             meaning: "Watched folders, an ignore list for files Usher must never look at, thresholds, privacy lists and the API key."),
         Item(symbol: "checkmark.circle", tint: .secondary, name: "Clear",
              meaning: "Dismiss handled rows from the panel (⌘K). Nothing is deleted, and Undo stays under Cleared."),
         Item(symbol: "power", tint: .secondary, name: "Quit",

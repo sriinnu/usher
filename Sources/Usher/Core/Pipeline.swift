@@ -230,8 +230,10 @@ final class Pipeline: ObservableObject {
             pending += Self.files(in: folder)
             pending += Self.units(in: folder, settings: settingsStore.settings, rules: rules)
         }
+        let settingsNow = settingsStore.settings
         pending = pending.filter {
-            journal.needsDecision($0.path, identity: FileIdentity.of($0))
+            !Exclusions.isIgnored($0, settings: settingsNow)
+                && journal.needsDecision($0.path, identity: FileIdentity.of($0))
                 && !inFlight.contains($0.canonicalPath)
         }
         guard !pending.isEmpty else { return }
@@ -419,6 +421,9 @@ final class Pipeline: ObservableObject {
         activeCount += 1
         defer { inFlight.remove(key); activeCount -= 1 }
         guard !journal.isLocked else { return }
+        // Your ignore list comes before everything, the secret floor included:
+        // an ignored file is not read, not journaled, and gets no row.
+        if Exclusions.isIgnored(url, settings: settingsStore.settings) { return }
         // A link is not the file. Archive Utility keeps symlinks when it
         // unzips; a "notes.txt" pointing elsewhere would pass the floor on its
         // own name and then have its target read and sent.
