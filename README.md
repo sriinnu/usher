@@ -27,7 +27,11 @@ without one, but every file that is not matched by a rule will simply be left al
 
 ## Install
 
-Download `Usher-x.y.z.zip` from the
+```bash
+brew install --cask sriinnu/tap/usher
+```
+
+Or download `Usher-x.y.z.zip` from the
 [latest release](https://github.com/sriinnu/usher/releases/latest), unzip, and
 drag `Usher.app` to Applications. Releases are signed with a Developer ID and
 notarized by Apple, so Gatekeeper opens them without a detour; a `.sha256` file

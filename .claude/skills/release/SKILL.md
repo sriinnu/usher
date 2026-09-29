@@ -159,7 +159,19 @@ Launch it once. The first launch of a newly signed build asks for the keychain
 items (API key, journal key) one last time; after that the Developer ID
 identity holds across versions.
 
-## 7. Hand over
+## 7. Homebrew
+
+The cask lives in `sriinnu/homebrew-tap`, `Casks/usher.rb`, and is bumped by a
+PR titled `usher X.Y.Z` (the tap's convention). Update `version` and `sha256`
+from the release's `.sha256`, then:
+
+```bash
+brew style --cask Casks/usher.rb
+brew audit --cask --online sriinnu/tap/usher      # after the PR is merged
+brew install --cask sriinnu/tap/usher              # a real install, then launch it
+```
+
+## 8. Hand over
 
 Report: the tag and its signature status, the zip path and SHA-256, the
 notarization submission ID and status, test count, and the known issues. Then
