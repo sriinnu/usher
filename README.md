@@ -25,14 +25,30 @@ Usher does nothing useful without a key — routing, renaming and the personal-r
 check all run through Jev. The local rules and the privacy filter still work
 without one, but every file that is not matched by a rule will simply be left alone.
 
-## Build
+## Install
+
+Download `Usher-x.y.z.zip` from the
+[latest release](https://github.com/sriinnu/usher/releases/latest), unzip, and
+drag `Usher.app` to Applications. Releases are signed with a Developer ID and
+notarized by Apple, so Gatekeeper opens them without a detour; a `.sha256` file
+sits next to each zip if you want to check the download.
+
+The app lives in the menubar only; there is no Dock icon. On first launch it
+asks for a TypeSafe API key (Settings → Privacy) and macOS asks once to let it
+read your Downloads folder and use its keychain items — allow both.
+
+## Build from source
 
 ```bash
-./Scripts/bundle.sh
+./Scripts/bundle.sh          # release build for this Mac
 open build/Usher.app
 ```
 
-The app lives in the menubar only; there is no Dock icon.
+With a "Developer ID Application" certificate in your keychain the build is
+signed with it and the hardened runtime; otherwise it is ad-hoc signed, which
+works but gives every build a new identity (see the note under the API key).
+`Scripts/release.sh` does the full tagged, universal, notarized release — the
+procedure is in `.claude/skills/release/SKILL.md`.
 
 ## Setting the API key
 
@@ -42,10 +58,10 @@ Usher looks in this order and never logs the value:
 2. environment `TYPESAFE_API_KEY`
 3. login keychain, generic password with service `JEV_API_KEY`
 
-**Environment first, deliberately.** A keychain ACL is bound to the exact binary,
-so every rebuild produces a new identity and macOS re-asks for permission —
-"Always Allow" only holds until the next build. Reading the environment never
-prompts.
+**Environment first, deliberately.** A keychain grant is bound to the signing
+identity. A Developer ID build keeps one identity across versions, so "Always
+Allow" holds; an ad-hoc build from source is a new identity every time and
+macOS re-asks after each rebuild. Reading the environment never prompts.
 
 GUI apps do not inherit your shell profile, so exporting the key in `.zshrc` is
 not enough for the `.app`. Use `launchctl`:
@@ -75,8 +91,8 @@ nobody to click an "allow access" dialog and would block forever waiting.
 **Settings → Privacy** has a field to paste a key straight into the keychain, and
 shows which source answered — never the key itself. It reports three states, since
 they need different fixes: nothing stored, stored and readable, or *stored but this
-build cannot read it* (the keychain grants access per binary, so rebuilding from
-source invalidates it — re-save, or use the environment). The
+build cannot read it* (an ad-hoc rebuild from source is a new identity to the
+keychain — re-save, or use the environment). The
 key is never written to the journal, the config, or this repository.
 
 ## How a download is handled

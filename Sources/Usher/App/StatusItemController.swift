@@ -54,6 +54,17 @@ final class StatusItemController: NSObject {
 
         statusItem = item
         refreshIcon()
+
+        // A display change can leave a status item with a dead button. Rebuild
+        // it rather than wait for a click that goes nowhere.
+        NotificationCenter.default.addObserver(
+            forName: NSApplication.didChangeScreenParametersNotification, object: nil, queue: .main
+        ) { [weak self] _ in
+            guard let self, self.statusItem?.button?.window == nil else { return }
+            self.close()
+            if let old = self.statusItem { NSStatusBar.system.removeStatusItem(old) }
+            self.install()
+        }
     }
 
     /// Keeps the icon's tint in step with state: grey paused, orange dry run,
@@ -126,9 +137,14 @@ final class StatusItemController: NSObject {
     // MARK: - Panel
 
     @objc private func togglePanel() {
-        if let popover, popover.isShown {
+        // `isShown` is a flag, not a fact. After days of sleep, wake and
+        // display changes a popover can claim to be shown with no window on
+        // any screen — and then every click "closes" it and nothing appears.
+        // Believe the window, not the flag.
+        if let popover, popover.isShown, popover.contentViewController?.view.window?.isVisible == true {
             close()
         } else {
+            close()
             open()
         }
     }
